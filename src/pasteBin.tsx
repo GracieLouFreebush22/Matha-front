@@ -25,29 +25,37 @@ export default function PasteBin(): JSX.Element {
     fetchRemoteDb();
   }, [pasteData]);
 
-  console.log(pasteData);
+  console.log(pasteData)
   return (
     <div>
-      <h1> Martha's Pastes </h1>
+       <h1> Martha's Pastes </h1>
 
-      <table className="table">
+      <table className= "table" >
         <tr>
           <th> NAME </th>
           <th> TITLE </th>
           <th> CONTENT </th>
         </tr>
+       
+        
+        
+      {pasteData.map((item) => (
+        <tr key ={item.id} >
+          <td > {item.name} </td> 
+          <td > {item.title} </td>
+          <td > {item.pasteContent} </td>
+          
+        </tr> 
+      ))}
 
-        {pasteData.map((item) => (
-          <tr key={item.id}>
-            <td> {item.name} </td>
-            <td> {item.title} </td>
-            <td> {item.pasteContent} </td>
-          </tr>
-        ))}
       </table>
+
+     
     </div>
   );
 }
+
+
 
 //})}
 /*
