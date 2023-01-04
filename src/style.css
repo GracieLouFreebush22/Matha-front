@@ -1,9 +1,33 @@
-table, th, td {
-    border: 1px solid;
-    border-color: rgb(103, 59, 2);
-  }
-  
-*{
-    background:peachpuff;
-    
+table,
+th,
+td {
+  border: 1px solid;
+  border-color: rgb(103, 59, 2);
+  border-collapse: collapse;
+  padding: 15px;
+  text-align: left;
+}
+tr:hover {
+  background-color: rgb(241, 194, 194);
+}
+
+th {
+  height: 50px;
+  background-color: #ec94e1;
+  color: white;
+  text-align: center;
+}
+
+.title {
+  width: 300px;
+}
+.content {
+  width: 600px;
+}
+.name {
+  width: 100px;
+}
+
+.button {
+  text-align: right;
 }

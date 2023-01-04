@@ -5,13 +5,15 @@ import axios from "axios";
 interface pasteI {
   id: number;
   name: string;
-  title: string;
-  pasteContent: string;
+  pastetitle: string;
+  pastecontent: string;
 }
 
 export default function PasteBin(): JSX.Element {
   const [pasteData, setPasteData] = useState<pasteI[]>([]);
+  const [button, setButton] = useState<boolean>(false);
   console.log("I am trying to print paste data", pasteData);
+  console.log("title", pasteData[2]?.pastecontent);
 
   useEffect(() => {
     const fetchRemoteDb = async () => {
@@ -23,39 +25,50 @@ export default function PasteBin(): JSX.Element {
       console.log("use effect is running");
     };
     fetchRemoteDb();
-  }, [pasteData]);
+  }, []);
 
-  console.log(pasteData)
+  console.log(pasteData);
   return (
     <div>
-       <h1> Martha's Pastes </h1>
-
-      <table className= "table" >
+      <table className="table">
         <tr>
-          <th> NAME </th>
-          <th> TITLE </th>
-          <th> CONTENT </th>
+          <th> ID NUM</th>
+          <th className="name"> NAME </th>
+          <th className="title"> TITLE </th>
+          <th className="content"> CONTENT </th>
         </tr>
-       
-        
-        
-      {pasteData.map((item) => (
-        <tr key ={item.id} >
-          <td > {item.name} </td> 
-          <td > {item.title} </td>
-          <td > {item.pasteContent} </td>
-          
-        </tr> 
-      ))}
 
+        {pasteData.map((item) => (
+          <tr key={item.id}>
+            <td> {item.id} </td>
+            <td> {item.name} </td>
+            <td> {item.pastetitle} </td>
+            {button === false ? (
+              <td>
+                {" "}
+                ({item.pastecontent.slice(0, 300)}...{" "}
+                <button className="button" onClick={() => setButton(!button)}>
+                  {" "}
+                  ⬇️{" "}
+                </button>{" "}
+                ){" "}
+              </td>
+            ) : (
+              <td>
+                {" "}
+                {item.pastecontent}{" "}
+                <button className="button" onClick={() => setButton(!button)}>
+                  {" "}
+                  ⬆️{" "}
+                </button>{" "}
+              </td>
+            )}
+          </tr>
+        ))}
       </table>
-
-     
     </div>
   );
 }
-
-
 
 //})}
 /*
