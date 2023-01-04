@@ -31,3 +31,8 @@ th {
 .button {
   text-align: right;
 }
+
+.inputBox {
+  width: 500px;
+  height: 500px
+}
