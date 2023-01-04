@@ -1,0 +1,9 @@
+table,
+th,
+td {
+  border: 1px solid;
+  border-color: rgb(103, 59, 2);
+}
+* {
+  background: peachpuff;
+}

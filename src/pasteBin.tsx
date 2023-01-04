@@ -5,14 +5,13 @@ import axios from "axios";
 interface pasteI {
   id: number;
   name: string;
-  pasteTitle: string;
+  title: string;
   pasteContent: string;
 }
 
 export default function PasteBin(): JSX.Element {
   const [pasteData, setPasteData] = useState<pasteI[]>([]);
   console.log("I am trying to print paste data", pasteData);
-  console.log("hello");
 
   useEffect(() => {
     const fetchRemoteDb = async () => {
@@ -26,19 +25,40 @@ export default function PasteBin(): JSX.Element {
     fetchRemoteDb();
   }, [pasteData]);
 
+  console.log(pasteData);
   return (
     <div>
-      <div>
-        <h1> Martha's Pastes </h1>
-      </div>
+      <h1> Martha's Pastes </h1>
 
-      {pasteData.map((item, i) => (
-        <div key={item.id}> Hello my name is {item.name} </div>
-      ))}
+      <table className="table">
+        <tr>
+          <th> NAME </th>
+          <th> TITLE </th>
+          <th> CONTENT </th>
+        </tr>
+
+        {pasteData.map((item) => (
+          <tr key={item.id}>
+            <td> {item.name} </td>
+            <td> {item.title} </td>
+            <td> {item.pasteContent} </td>
+          </tr>
+        ))}
+      </table>
     </div>
   );
 }
 
-
-
 //})}
+/*
+<div>
+{pasteData.map((item) => (
+  <div key= {item.id}>
+
+  <li> {item.name} </li>
+  <li> {item.title} </li>
+  <li> {item.pasteContent}</li>
+  </div>
+))}
+</div>
+*/
