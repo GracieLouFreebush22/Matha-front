@@ -13,8 +13,8 @@ export default function PasteBin(): JSX.Element {
   const [pasteData, setPasteData] = useState<pasteI[]>([]);
   const [button, setButton] = useState<boolean>(false);
   const [editButton, setEditButton] = useState<boolean>(false);
-  const [editObject, setEditObject] = useState<pasteI>()
-  const [editContent, setEditContent] = useState<string>("")
+  const [editObject, setEditObject] = useState<pasteI>();
+  const [editContent, setEditContent] = useState<string>("");
   console.log("I am trying to print paste data", pasteData);
   console.log("title", pasteData[2]?.pastecontent);
 
@@ -32,25 +32,38 @@ export default function PasteBin(): JSX.Element {
 
   console.log(pasteData);
 
-
   const handleEdit = (idNum: number) => {
-    setEditButton(true)
-    console.log(idNum)
-    for (const item of pasteData){
-      if (item.id === idNum){
-        setEditObject(item)
-        setEditContent(item.pastecontent)
+    setEditButton(true);
+    console.log(idNum);
+    for (const item of pasteData) {
+      if (item.id === idNum) {
+        setEditObject(item);
+        setEditContent(item.pastecontent);
       }
     }
-  }
+  };
 
- const handleSubmitChange = async (newContent: string) => {
-  // patch request which sets our editable items paste content to be the newly edited content
-  console.log(editContent)
-  const response = await axios.patch("http://localhost:4000/pastes", 
-  {id: editObject?.id, pastecontent: editContent})
-  console.log(response)
- }
+  const handleSubmitChange = async (newContent: string) => {
+    // patch request which sets our editable items paste content to be the newly edited content
+    console.log("i am edit conetnet", editContent);
+    const response = await axios.patch("http://localhost:4000/pastes", {
+      id: editObject?.id,
+      pastecontent: newContent,
+    });
+    console.log("i am response", response);
+    console.log("i am new content", newContent);
+  };
+
+  const handleShowComments = async (id: number) => {
+    const response = await axios.get(`http://localhost:4000/comments/${id}`, {
+      data: { pasteId: id },
+    });
+    console.log("this is the comment", response);
+  };
+
+  const handleMakeComment = async (id: number) => {
+    console.log("i am make comment");
+  };
 
   return (
     <div>
@@ -75,8 +88,12 @@ export default function PasteBin(): JSX.Element {
                   {" "}
                   ⬇️{" "}
                 </button>{" "}
-                {" "}
-                <button onClick = {() => handleEdit(item.id)}>🖊</button>
+                <button onClick={() => handleEdit(item.id)}>🖊</button>
+                <button onClick={() => handleShowComments(item.id)}>
+                  {" "}
+                  🗨️{" "}
+                </button>
+                <button onClick={() => handleMakeComment(item.id)}> 📝 </button>
               </td>
             ) : (
               <td>
@@ -86,18 +103,33 @@ export default function PasteBin(): JSX.Element {
                   {" "}
                   ⬆️{" "}
                 </button>{" "}
-                <button onClick = {() => handleEdit(item.id)}>🖊</button>
+                <button onClick={() => handleEdit(item.id)}>🖊</button>
+                <button onClick={() => handleShowComments(item.id)}>
+                  {" "}
+                  🗨️{" "}
+                </button>
+                <button onClick={() => handleMakeComment(item.id)}> 📝 </button>
               </td>
             )}
           </tr>
         ))}
       </table>
-      {editButton === true && editObject ? <><input className = "inputBox" type = "text" value = {editContent} onChange={(e) => setEditContent(e.target.value)}/> 
-      <button onClick = {() => handleSubmitChange(editContent)}> Make change </button>
-      </>
-      : <p> Select an item to edit</p>}
+      {editButton === true && editObject ? (
+        <>
+          <input
+            className="inputBox"
+            type="text"
+            value={editContent}
+            onChange={(e) => setEditContent(e.target.value)}
+          />
+          <button onClick={() => handleSubmitChange(editContent)}>
+            {" "}
+            Make change{" "}
+          </button>
+        </>
+      ) : (
+        <p> Select an item to edit</p>
+      )}
     </div>
   );
 }
-
-
