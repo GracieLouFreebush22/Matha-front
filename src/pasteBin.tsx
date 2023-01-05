@@ -12,15 +12,16 @@ interface pasteI {
 
 export default function PasteBin(): JSX.Element {
   const [pasteData, setPasteData] = useState<pasteI[]>([]);
-  const [button, setButton] = useState<boolean>(false);
+  const [droppedDownID, setDroppedDownID] = useState<number[]>([]);
+
   const [editButton, setEditButton] = useState<boolean>(false);
   const [editObject, setEditObject] = useState<pasteI>();
   const [editContent, setEditContent] = useState<string>("");
-  const [commentID, setCommentID] = useState<number>()
-  const [comment, setComments] = useState<string>("")
+  const [commentID, setCommentID] = useState<number | undefined>();
+  const [displayComment, setDisplayComment] = useState<string>("");
+  const [typedComment, setTypedComment] = useState<string>("");
 
-  console.log(commentID, "current commentID")
-
+  console.log(commentID, "current commentID");
 
   useEffect(() => {
     const fetchRemoteDb = async () => {
@@ -35,15 +36,22 @@ export default function PasteBin(): JSX.Element {
   }, []);
 
   useEffect(() => {
-    console.log("entered comment use effect")
+    console.log("entered comment use effect");
     const fetchRemoteDb = async () => {
       //const response = await axios.get("")
-      console.log("running fetchremoteDB function")
-      const response = await axios.get(`http://localhost:4000/comments/${commentID}`);
-      console.log("get has ran")
-      const wholeResponseData = response.data;
-      const responseData = wholeResponseData.data;
-      setComments(responseData);
+      console.log("running fetchremoteDB function");
+      try {
+        const response = await axios.get(
+          `http://localhost:4000/pastes/${commentID}`,
+          { data: { id: commentID } }
+        );
+        console.log("get has ran");
+        const wholeResponseData = response.data;
+        const responseData = wholeResponseData.data;
+        setDisplayComment(responseData);
+      } catch (err) {
+        console.log("get request failed");
+      }
     };
     fetchRemoteDb();
   }, [commentID]);
@@ -68,6 +76,7 @@ export default function PasteBin(): JSX.Element {
       id: editObject?.id,
       pastecontent: newContent,
     });
+    console.log(response);
   };
 
   const handleShowComments = async (id: number) => {
@@ -78,16 +87,41 @@ export default function PasteBin(): JSX.Element {
     // const wholeResponseData = response.data;
     // const responseData = wholeResponseData.data;
     // console.log("this is the comment", responseData);
-    console.log("show comment button")
-    setCommentID(id)
+    console.log("show comment button");
+    setCommentID(id);
   };
 
-  const handleMakeComment = async (id: number) => {
+  const handleMakeComment = async (id: number, comment: string) => {
     console.log("i am make comment");
+    const response = await axios.post("http://localhost:4000/comments", {
+      pasteid: id,
+      comment: comment,
+    });
+    console.log(response, "made your comment");
+    setTypedComment("");
+    setCommentID(undefined);
   };
 
   return (
     <div>
+      {typeof commentID === "number" ? (
+        <>
+          <input
+            type="text"
+            placeholder="make comment"
+            value={typedComment}
+            onChange={(e) => setTypedComment(e.target.value)}
+          />
+          <button
+            onClick={() => handleMakeComment(commentID as number, typedComment)}
+          >
+            {" "}
+            Submit comment{" "}
+          </button>{" "}
+        </>
+      ) : (
+        <></>
+      )}
       <table className="table">
         <tr>
           <th> ID NUM</th>
@@ -101,11 +135,15 @@ export default function PasteBin(): JSX.Element {
             <td> {item.id} </td>
             <td> {item.name} </td>
             <td> {item.pastetitle} </td>
-            {button === false ? (
+            {!droppedDownID.includes(item.id) ? (
               <td>
                 {" "}
                 {item.pastecontent.slice(0, 300)}...{" "}
-                <button className="button" onClick={() => setButton(!button)}>
+                <button
+                  key={item.id}
+                  className="button"
+                  onClick={() => setDroppedDownID([...droppedDownID, item.id])}
+                >
                   {" "}
                   ⬇️{" "}
                 </button>{" "}
@@ -114,13 +152,23 @@ export default function PasteBin(): JSX.Element {
                   {" "}
                   🗨️{" "}
                 </button>
-                <button onClick={() => handleMakeComment(item.id)}> 📝 </button>
+                <button onClick={() => setCommentID(item.id)}> 📝 </button>
               </td>
             ) : (
               <td>
                 {" "}
                 {item.pastecontent}{" "}
-                <button className="button" onClick={() => setButton(!button)}>
+                <button
+                  key={item.id}
+                  className="button"
+                  onClick={() =>
+                    setDroppedDownID([
+                      ...droppedDownID.slice(
+                        droppedDownID.indexOf(item.id) + 1
+                      ),
+                    ])
+                  }
+                >
                   {" "}
                   ⬆️{" "}
                 </button>{" "}
@@ -129,7 +177,6 @@ export default function PasteBin(): JSX.Element {
                   {" "}
                   🗨️{" "}
                 </button>
-                <button onClick={() => handleMakeComment(item.id)}> 📝 </button>
               </td>
             )}
           </tr>
@@ -150,9 +197,8 @@ export default function PasteBin(): JSX.Element {
         </>
       ) : (
         <p> Select an item to edit</p>
-        
       )}
-      <p> {comment}</p>
+      <p> {displayComment}</p>
     </div>
   );
 }
