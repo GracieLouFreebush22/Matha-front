@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useState } from "react";
 import axios from "axios";
+import { createModuleResolutionCache } from "typescript";
 
 interface pasteI {
   id: number;
@@ -15,8 +16,11 @@ export default function PasteBin(): JSX.Element {
   const [editButton, setEditButton] = useState<boolean>(false);
   const [editObject, setEditObject] = useState<pasteI>();
   const [editContent, setEditContent] = useState<string>("");
-  console.log("I am trying to print paste data", pasteData);
-  console.log("title", pasteData[2]?.pastecontent);
+  const [commentID, setCommentID] = useState<number>()
+  const [comment, setComments] = useState<string>("")
+
+  console.log(commentID, "current commentID")
+
 
   useEffect(() => {
     const fetchRemoteDb = async () => {
@@ -29,6 +33,20 @@ export default function PasteBin(): JSX.Element {
     };
     fetchRemoteDb();
   }, []);
+
+  useEffect(() => {
+    console.log("entered comment use effect")
+    const fetchRemoteDb = async () => {
+      //const response = await axios.get("")
+      console.log("running fetchremoteDB function")
+      const response = await axios.get(`http://localhost:4000/comments/${commentID}`);
+      console.log("get has ran")
+      const wholeResponseData = response.data;
+      const responseData = wholeResponseData.data;
+      setComments(responseData);
+    };
+    fetchRemoteDb();
+  }, [commentID]);
 
   console.log(pasteData);
 
@@ -50,15 +68,18 @@ export default function PasteBin(): JSX.Element {
       id: editObject?.id,
       pastecontent: newContent,
     });
-    console.log("i am response", response);
-    console.log("i am new content", newContent);
   };
 
   const handleShowComments = async (id: number) => {
-    const response = await axios.get(`http://localhost:4000/comments/${id}`, {
-      data: { pasteId: id },
-    });
-    console.log("this is the comment", response);
+    // console.log("show comment clicked")
+    // const response = await axios.get(`http://localhost:4000/comments/${id}`, {
+    //    data: {pasteId: id}
+    // });
+    // const wholeResponseData = response.data;
+    // const responseData = wholeResponseData.data;
+    // console.log("this is the comment", responseData);
+    console.log("show comment button")
+    setCommentID(id)
   };
 
   const handleMakeComment = async (id: number) => {
@@ -129,7 +150,9 @@ export default function PasteBin(): JSX.Element {
         </>
       ) : (
         <p> Select an item to edit</p>
+        
       )}
+      <p> {comment}</p>
     </div>
   );
 }
