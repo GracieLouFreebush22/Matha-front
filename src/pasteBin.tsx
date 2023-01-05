@@ -1,13 +1,17 @@
 import { useEffect } from "react";
 import { useState } from "react";
 import axios from "axios";
-import { createModuleResolutionCache } from "typescript";
+
 
 interface pasteI {
   id: number;
   name: string;
   pastetitle: string;
   pastecontent: string;
+}
+interface commentI {
+  pasteid: number, 
+  comment: string
 }
 
 export default function PasteBin(): JSX.Element {
@@ -18,7 +22,8 @@ export default function PasteBin(): JSX.Element {
   const [editObject, setEditObject] = useState<pasteI>();
   const [editContent, setEditContent] = useState<string>("");
   const [commentID, setCommentID] = useState<number | undefined>();
-  const [displayComment, setDisplayComment] = useState<string>("");
+  //const [displayComment, setDisplayComment] = useState<string>("");
+  const [commentData, setCommentData] = useState<commentI[]>([])
   const [typedComment, setTypedComment] = useState<string>("");
 
   console.log(commentID, "current commentID");
@@ -35,28 +40,40 @@ export default function PasteBin(): JSX.Element {
     fetchRemoteDb();
   }, []);
 
-  useEffect(() => {
-    console.log("entered comment use effect");
-    const fetchRemoteDb = async () => {
-      //const response = await axios.get("")
-      console.log("running fetchremoteDB function");
-      try {
-        const response = await axios.get(
-          `http://localhost:4000/pastes/${commentID}`,
-          { data: { id: commentID } }
-        );
-        console.log("get has ran");
-        const wholeResponseData = response.data;
-        const responseData = wholeResponseData.data;
-        setDisplayComment(responseData);
-      } catch (err) {
-        console.log("get request failed");
-      }
-    };
-    fetchRemoteDb();
-  }, [commentID]);
+  // useEffect(() => {
+  //   console.log("entered comment use effect");
+  //   const fetchRemoteDb = async () => {
+  //     //const response = await axios.get("")
+  //     console.log("running fetchremoteDB function");
+  //     try {
+  //       const response = await axios.get(
+  //         `http://localhost:4000/pastes/${commentID}`,
+  //         { data: { id: commentID } }
+  //       );
+  //       console.log("get has ran");
+  //       const wholeResponseData = response.data;
+  //       const responseData = wholeResponseData.data;
+  //       setDisplayComment(responseData);
+  //     } catch (err) {
+  //       console.log("get request failed");
+  //     }
+  //   };
+  //   fetchRemoteDb();
+  // }, [commentID]);
 
-  console.log(pasteData);
+  useEffect(() => {
+    const fetchRemoteCommentDb = async () => {
+      const response = await axios.get("http://localhost:4000/pastes/comments");
+      const wholeResponseData = response.data;
+      const responseData = wholeResponseData.data;
+      setCommentData(responseData);
+    
+    };
+    fetchRemoteCommentDb();
+  }, []);
+
+
+
 
   const handleEdit = (idNum: number) => {
     setEditButton(true);
@@ -80,13 +97,6 @@ export default function PasteBin(): JSX.Element {
   };
 
   const handleShowComments = async (id: number) => {
-    // console.log("show comment clicked")
-    // const response = await axios.get(`http://localhost:4000/comments/${id}`, {
-    //    data: {pasteId: id}
-    // });
-    // const wholeResponseData = response.data;
-    // const responseData = wholeResponseData.data;
-    // console.log("this is the comment", responseData);
     console.log("show comment button");
     setCommentID(id);
   };
@@ -198,7 +208,7 @@ export default function PasteBin(): JSX.Element {
       ) : (
         <p> Select an item to edit</p>
       )}
-      <p> {displayComment}</p>
+     {commentData.map((item) => <li key = {item.pasteid}>{item.comment}</li>)}
     </div>
   );
 }
